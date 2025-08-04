@@ -1,0 +1,269 @@
+**PENJUALAN**
+
+TotalPiutang = 
+SUM('LP_Piutang Penjualan'[Piutang])
+
+=====================
+
+TotalPenjualanProduk = SUM('LP_Penjualan Produk'[TotalJual])
+
+=====================
+
+TotalPenjualan = SUM('LP_Penjualan'[Total])
+
+=====================
+
+TotalLabaProduk = SUM('LP_Laba Penjualan Produk'[LabaKotor])
+
+=====================
+
+TotalInvoice = 
+SUM('LP_Piutang Penjualan'[TotalPenjualan])
+
+=====================
+
+TotalDiskonPenjualan = SUM('LP_Penjualan'[TotalDiskon])
+
+=====================
+
+TotalBayarPiutang = 
+SUM('LP_Pembayaran Piutang'[Bayar])
+
+=====================
+
+AverageDiskon = AVERAGE(LP_Penjualan[TotalDiskon])
+
+=====================
+
+AverageOrderPerCustomer = 
+DIVIDE([TotalPembelian], [TotalPenjualan], 0)
+
+=====================
+
+CustomerLifetimeValue = 
+CALCULATE(
+    [TotalPenjualan],
+    FILTER(
+        'LP_Penjualan',
+        'LP_Penjualan'[KodePelanggan] = SELECTEDVALUE('MD_Data Pelanggan'[KodePelanggan])
+    )
+)
+
+=====================
+
+FrekuensiPelanggan = 
+CALCULATE(
+    COUNT('LP_Penjualan'[KodePenjualan]),
+    ALLEXCEPT('LP_Penjualan', 'LP_Penjualan'[KodePelanggan])
+)
+
+=====================
+
+JudulProduk = "Profitabilitas Produk – " & SELECTEDVALUE(DimDate[Year-Month])
+
+=====================
+
+JumlahTransaksi = COUNT('LP_Penjualan'[KodePenjualan])
+
+=====================
+
+LabaKotor = [TotalPenjualan] - SUM('LP_Penjualan'[TotalModal])
+
+=====================
+
+LabaPerJenis = 
+SUMX(
+    VALUES('MD_Jenis Produk'[NamaJenisProduk]),
+    [TotalLabaProduk]
+)
+
+=====================
+
+Margin = ([LabaKotor] / [TotalPenjualan]) * 100/100
+
+=====================
+
+MarginPenjualan = DIVIDE([LabaKotor], [TotalPenjualan], 0)
+
+=====================
+
+MarginProduk = 
+DIVIDE([TotalLabaProduk], [TotalPenjualanProduk], 0)
+
+=====================
+
+NilaiPenjualanPerSales = 
+CALCULATE([TotalPenjualan], ALLEXCEPT('LP_Penjualan', 'LP_Penjualan'[KodeSales]))
+
+=====================
+
+OutstandingPiutang = 
+[TotalInvoice] - [TotalBayarPiutang]
+
+=====================
+
+PenjualanBulanIni = 
+CALCULATE(
+  [TotalPenjualan],
+  DATESINPERIOD(DimDate[Date], MAX(DimDate[Date]), -1, MONTH)
+)
+
+=====================
+
+Piutang_0_30 = 
+VAR Bucket0_30 =
+    FILTER(
+        ALL('LP_Piutang Penjualan'),
+        'LP_Piutang Penjualan'[AgingBucket] = "0–30 hari"
+    )
+RETURN
+CALCULATE(
+    [TotalPiutang]  /* measure dasar */,
+    Bucket0_30
+)
+
+
+=====================
+
+Piutang_31_60 = 
+VAR Bucket31_60 =
+    FILTER(
+        ALL('LP_Piutang Penjualan'),
+        'LP_Piutang Penjualan'[AgingBucket] = "31–60 hari"
+    )
+RETURN
+CALCULATE(
+    [TotalPiutang],
+    Bucket31_60
+)
+
+=====================
+
+Piutang_61plus = 
+VAR Bucket61Plus =
+    FILTER(
+        ALL('LP_Piutang Penjualan'),
+        'LP_Piutang Penjualan'[AgingBucket] = "61+ hari"
+    )
+RETURN
+CALCULATE(
+    [TotalPiutang],
+    Bucket61Plus
+)
+
+=====================
+
+Piutang_61plus = 
+VAR Bucket61Plus =
+    FILTER(
+        ALL('LP_Piutang Penjualan'),
+        'LP_Piutang Penjualan'[AgingBucket] = "61+ hari"
+    )
+RETURN
+CALCULATE(
+    [TotalPiutang],
+    Bucket61Plus
+)
+
+=====================
+
+ProdukTerlaris = 
+CALCULATE(
+  MAX('LP_Penjualan Produk'[KodeProduk]),
+  TOPN(
+    1,
+    ADDCOLUMNS(
+      SUMMARIZE('LP_Penjualan Produk','LP_Penjualan Produk'[KodeProduk]),
+      "Qty", SUM('LP_Penjualan Produk'[JumlahProduk])
+    ),
+    [Qty], DESC
+  )
+)
+
+=====================
+
+RasioPelunasan = 
+DIVIDE([TotalBayarPiutang], [TotalInvoice], 0)
+
+=====================
+
+RataTransaksiSales = 
+AVERAGEX(VALUES('LP_Penjualan'[KodeSales]), [TransaksiSales])
+
+=====================
+
+TopCustomerPiutang = 
+CALCULATE(
+    MAX('MD_Data Pelanggan'[NamaPelanggan]),
+    TOPN(
+        1,
+        SUMMARIZE(
+            'LP_Piutang Penjualan',
+            'LP_Piutang Penjualan'[NamaPelanggan],
+            "TotalPiut", SUM('LP_Piutang Penjualan'[Piutang])
+        ),
+        [TotalPiut], DESC
+    )
+)
+
+=====================
+
+TransaksiSales = 
+CALCULATE(
+    COUNT('LP_Penjualan'[KodePenjualan]),
+    ALLEXCEPT('LP_Penjualan', 'LP_Penjualan'[KodeSales])
+)
+
+=====================
+
+
+
+=====================
+
+
+
+=====================
+
+
+
+=====================
+
+
+
+=====================
+
+
+
+=====================
+
+
+
+=====================
+
+
+
+=====================
+
+
+
+=====================
+
+
+
+=====================
+
+
+
+=====================
+
+
+
+
+
+
+
+
+
+
+
+
