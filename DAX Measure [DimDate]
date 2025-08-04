@@ -1,0 +1,102 @@
+**DAX Date v1:**
+DimDate = 
+ADDCOLUMNS(
+    CALENDAR(DATE(2020,1,1), DATE(2030,12,31)),
+    "Year", YEAR([Date]),
+    "Month Number", MONTH([Date]),
+    "Month Name", FORMAT([Date], "MMMM"),
+    "Short Month", FORMAT([Date], "MMM"),
+    "Quarter", "Q" & FORMAT([Date], "Q"),
+    "Year-Month", FORMAT([Date], "YYYY-MM")
+)
+
+**DAX Date v2:**
+Date = 
+VAR MinDate = MINX( 
+    UNION(
+        SELECTCOLUMNS(Penjualan, "Tanggal", Penjualan[Tanggal]),
+        SELECTCOLUMNS(Pembelian, "Tanggal", Pembelian[Tanggal])
+    ),
+    [Tanggal]
+)
+VAR MaxDate = MAXX(
+    UNION(
+        SELECTCOLUMNS(Penjualan, "Tanggal", Penjualan[Tanggal]),
+        SELECTCOLUMNS(Pembelian, "Tanggal", Pembelian[Tanggal])
+    ),
+    [Tanggal]
+)
+RETURN
+ADDCOLUMNS(
+    CALENDAR(MinDate, MaxDate),
+    "Tahun", YEAR([Date]),
+    "Bulan", FORMAT([Date], "MMM"),
+    "Hari", WEEKDAY([Date], 2)
+)
+
+=======================
+
+Date Slicer Filter = 
+IF(
+    SELECTEDVALUE('Date Periods'[Type]) = "Custom",
+    1,
+    0
+)
+
+=======================
+
+Date Periods = 
+UNION(
+    ADDCOLUMNS(
+        DATESMTD('Date'[Date]), 
+        "Type", "MTD",
+        "Order", 1
+    ),
+    ADDCOLUMNS(
+        DATESQTD('Date'[Date]),
+        "Type", "QTD",
+        "Order", 2
+    ),
+    ADDCOLUMNS(
+        DATESYTD('Date'[Date]),
+        "Type", "YTD",
+        "Order", 3
+    ),
+    ADDCOLUMNS(
+        PREVIOUSYEAR('Date'[Date]),
+        "Type", "Last Year",
+        "Order", 4
+    ),
+    ADDCOLUMNS(
+        PREVIOUSQUARTER('Date'[Date]),
+        "Type", "Last Qtr",
+        "Order", 5
+    ),
+    ADDCOLUMNS(
+        PREVIOUSMONTH('Date'[Date]),
+        "Type", "Last Month",
+        "Order", 6
+    ),
+    ADDCOLUMNS(
+        CALENDAR(MIN('Date'[Date]), MAX('Date'[Date])),
+        "Type", "All Time",
+        "Order", 7
+    ),
+    ADDCOLUMNS(
+        CALENDAR(MIN('Date'[Date]), MAX('Date'[Date])),
+        "Type", "Custom",
+        "Order", 8
+    )
+)
+
+
+
+
+
+
+
+
+
+
+
+
